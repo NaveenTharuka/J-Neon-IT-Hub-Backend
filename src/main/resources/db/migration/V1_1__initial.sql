@@ -43,7 +43,7 @@ CREATE TABLE service_plans (
                                plan_name VARCHAR(80) NOT NULL,
                                price NUMERIC(10,2),
                                price_type VARCHAR(30) DEFAULT 'fixed',
-                               currency CHAR(3) DEFAULT 'USD',
+                               currency VARCHAR(3) DEFAULT 'USD',
                                billing_period VARCHAR(20),
                                description VARCHAR(255),
                                features JSONB,
