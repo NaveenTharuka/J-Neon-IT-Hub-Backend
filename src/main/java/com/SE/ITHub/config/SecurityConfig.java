@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${app.frontend.url}")
+    @Value("${frontend.url}")
     private String frontendUrl;
     
     @Autowired
