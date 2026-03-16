@@ -20,6 +20,16 @@ public class ServicesController {
 
     private final ServicesServiceImpl servicesService;
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteService(@PathVariable UUID id){
+        servicesService.deleteService(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<ServiceResponseDto> updateService(@RequestBody ServiceUpdateDto updateDto, @PathVariable UUID id){
+        return ResponseEntity.status(HttpStatus.OK).body(servicesService.updateService(id, updateDto));
+    }
+
     @PostMapping("/add")
     public ResponseEntity<ServiceResponseDto> createService(@RequestBody ServiceRequestDto reqDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(servicesService.createService(reqDto));
@@ -34,16 +44,4 @@ public class ServicesController {
     public ResponseEntity<ServiceResponseDto> getServiceById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(servicesService.getServiceById(id));
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ServiceResponseDto> updateService(@RequestBody ServiceUpdateDto updateDto, @PathVariable UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(servicesService.updateService(id, updateDto));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteService(@PathVariable UUID id){
-        servicesService.deleteService(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
 }

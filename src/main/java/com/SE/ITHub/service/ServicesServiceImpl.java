@@ -1,11 +1,14 @@
 package com.SE.ITHub.service;
 
 
+import com.SE.ITHub.dto.ServicePlanResponseDto;
 import com.SE.ITHub.dto.ServiceRequestDto;
 import com.SE.ITHub.dto.ServiceResponseDto;
 import com.SE.ITHub.dto.ServiceUpdateDto;
 import com.SE.ITHub.exception.ServiceNotFoundException;
+import com.SE.ITHub.mapper.ServicePlanMapper;
 import com.SE.ITHub.mapper.ServicesMapper;
+import com.SE.ITHub.model.ServicePlans;
 import com.SE.ITHub.model.Services;
 import com.SE.ITHub.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,19 +23,15 @@ import java.util.UUID;
 public class ServicesServiceImpl {
 
     private final ServiceRepository serviceRepository;
-
     private final ServicesMapper servicesMapper;
+    private final ServicePlanMapper servicePlanMapper;
 
-    public ServiceResponseDto createService(ServiceRequestDto reqDto) {
+    public void deleteService(UUID id){
+        Services service = serviceRepository.findById(id)
+                .orElseThrow(() -> new ServiceNotFoundException(id));
 
-        Services service = servicesMapper.toEntity(reqDto);
-
-        serviceRepository.save(service);
-
-        return servicesMapper.toResponse(service);
-
+        serviceRepository.delete(service);
     }
-
     public List<ServiceResponseDto> getAllServices(){
         List<Services> services = serviceRepository.findAll();
         List<ServiceResponseDto> responses = new ArrayList<>();
@@ -44,28 +43,39 @@ public class ServicesServiceImpl {
         return responses;
     }
 
+    public ServiceResponseDto updateService(UUID id, ServiceUpdateDto updateDto){
+        Services service = serviceRepository.findById(id)
+                .orElseThrow(() -> new ServiceNotFoundException(id));
+        Services saved = serviceRepository.save(servicesMapper.updateEntity(service, updateDto));
+        return servicesMapper.toResponse(saved);
+    }
+    public ServiceResponseDto createService(ServiceRequestDto reqDto) {
+
+        Services service = servicesMapper.toEntity(reqDto);
+
+        serviceRepository.save(service);
+
+        return servicesMapper.toResponse(service);
+
+    }
+
+    public List<ServicePlanResponseDto> getServicePlanByServiceId(UUID id){
+        Services service = serviceRepository.findById(id)
+                .orElseThrow(() -> new ServiceNotFoundException(id));
+
+        List<ServicePlans> plans = service.getPlans();
+        List<ServicePlanResponseDto> responses = new ArrayList<>();
+
+        for (ServicePlans servicePlans : plans){
+            responses.add(servicePlanMapper.toResponse(servicePlans));
+        }
+
+        return responses;
+    }
+
     public ServiceResponseDto getServiceById(UUID id) {
         Services service = serviceRepository.findById(id)
                 .orElseThrow(()-> new ServiceNotFoundException(id));
         return servicesMapper.toResponse(service);
     }
-
-    public ServiceResponseDto updateService(UUID id, ServiceUpdateDto updateDto){
-
-        Services service = serviceRepository.findById(id)
-                .orElseThrow(() -> new ServiceNotFoundException(id));
-
-        Services saved = serviceRepository.save(servicesMapper.updateEntity(service, updateDto));
-
-        return servicesMapper.toResponse(saved);
-    }
-
-    public void deleteService(UUID id){
-        Services service = serviceRepository.findById(id)
-                .orElseThrow(() -> new ServiceNotFoundException(id));
-
-        serviceRepository.delete(service);
-    }
-
-
 }
