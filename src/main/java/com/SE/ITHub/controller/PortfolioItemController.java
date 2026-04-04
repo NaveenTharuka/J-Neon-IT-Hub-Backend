@@ -20,7 +20,7 @@ public class PortfolioItemController {
         this.portfolioItemService = portfolioItemService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<PortfolioItemResponseDto> createPortfolioItem(
             @RequestBody PortfolioItemRequestDto request
     ) {
@@ -28,7 +28,7 @@ public class PortfolioItemController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<List<PortfolioItemResponseDto>> getAllPortfolioItems() {
         List<PortfolioItemResponseDto> items = portfolioItemService.getAllPortfolioItems();
         return ResponseEntity.ok(items);

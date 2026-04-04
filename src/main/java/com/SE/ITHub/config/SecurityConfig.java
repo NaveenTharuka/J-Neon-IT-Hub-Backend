@@ -17,8 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
+    private String frontendUrl = "http://localhost:5173";
     
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService; // ADD THIS

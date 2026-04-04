@@ -39,10 +39,18 @@ public class PlansUpdateReqDto {
 
     private String features;
 
-    private boolean isFeatured;
+    private Boolean isFeatured;
 
     private int sortOrder;
 
-    private boolean isActive;
+    private Boolean isActive;
+
+    public Boolean getFeatured() {
+        return this.isFeatured;
+    }
+
+    public Boolean getActive() {
+        return this.isActive;
+    }
 
 }

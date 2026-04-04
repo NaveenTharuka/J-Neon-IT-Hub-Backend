@@ -11,11 +11,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ServicePlanReqDto {
 
-
-    private UUID ServiceId;
+    private UUID serviceId;  // Changed from ServiceId to serviceId (camelCase)
 
     @NotNull
-    private String PlanName;
+    private String planName;  // Changed from PlanName to planName (camelCase)
 
     @NotNull
     private BigDecimal price;
@@ -33,10 +32,18 @@ public class ServicePlanReqDto {
 
     private String features;
 
-    private boolean isFeatured;
+    private Boolean isFeatured;  // Changed from boolean to Boolean (wrapper class)
 
-    private int sortOrder;
+    private Integer sortOrder;   // Changed from int to Integer (wrapper class)
 
-    private boolean isActive;
+    private Boolean isActive;    // Changed from boolean to Boolean (wrapper class)
+
+    public Boolean getFeatured() {
+        return this.isFeatured;
+    }
+
+    public Boolean getActive() {
+        return this.isActive;
+    }
 
 }

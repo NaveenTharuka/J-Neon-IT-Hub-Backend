@@ -60,7 +60,7 @@ public class ServicePlans {
     private String features;
 
     @Column(name = "is_featured", nullable = false)
-    private boolean isFeatured;
+    private Boolean isFeatured;
 
     @Column(name = "sort_order", nullable = false)
     private int sortOrder;
@@ -85,4 +85,19 @@ public class ServicePlans {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void setFeatured(boolean featured) {
+        this.isFeatured = featured;
+    }
+
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+
+    public Boolean getFeatured() {
+        return this.isFeatured;
+    }
+
+    public Boolean getActive() {
+        return this.isActive;
+    }
 }

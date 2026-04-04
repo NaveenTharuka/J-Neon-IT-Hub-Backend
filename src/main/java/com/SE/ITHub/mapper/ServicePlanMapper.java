@@ -1,5 +1,6 @@
 package com.SE.ITHub.mapper;
 
+
 import com.SE.ITHub.dto.PlansUpdateReqDto;
 import com.SE.ITHub.dto.ServicePlanReqDto;
 import com.SE.ITHub.dto.ServicePlanResponseDto;
@@ -39,8 +40,8 @@ public class ServicePlanMapper {
                 .billingPeriod(reqDto.getBillingPeriod())
                 .description(reqDto.getDescription())
                 .features(reqDto.getFeatures())
-                .isFeatured(reqDto.isFeatured())
-                .isActive(reqDto.isActive())
+                .isFeatured(reqDto.getFeatured())
+                .isActive(reqDto.getActive())
                 .sortOrder(reqDto.getSortOrder())
                 .build();
 
@@ -53,14 +54,15 @@ public class ServicePlanMapper {
         }
 
         return ServicePlanResponseDto.builder()
+                .id(servicePlan.getId())
                 .serviceType(servicePlan.getService().getTitle())
                 .planName(servicePlan.getPlanName())
                 .price(servicePlan.getPrice())
                 .priceType(servicePlan.getPriceType())
                 .description(servicePlan.getDescription())
                 .features(servicePlan.getFeatures())
-                .isFeatured(servicePlan.isFeatured())
-                .isActive(servicePlan.isActive())
+                .isFeatured(servicePlan.getFeatured())
+                .isActive(servicePlan.getActive())
                 .build();
     }
 
@@ -84,8 +86,8 @@ public class ServicePlanMapper {
         plan.setBillingPeriod(updateDto.getBillingPeriod());
         plan.setDescription(updateDto.getDescription());
         plan.setFeatures(updateDto.getFeatures());
-        plan.setFeatured(updateDto.isFeatured());
-        plan.setActive(updateDto.isActive());
+        plan.setFeatured(updateDto.getFeatured());
+        plan.setActive(updateDto.getActive());
         plan.setSortOrder(updateDto.getSortOrder());
 
         return plan;

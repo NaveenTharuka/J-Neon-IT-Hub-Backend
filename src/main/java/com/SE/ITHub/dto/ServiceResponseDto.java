@@ -15,4 +15,5 @@ public class ServiceResponseDto {
     private String slug;
     private String shortDescription;
     private int sortOrder;
+    private boolean isActive;
 }
