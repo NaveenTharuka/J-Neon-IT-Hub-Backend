@@ -11,9 +11,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
@@ -21,60 +18,31 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
+    @Value("${app.frontend.url}")
+    private String primaryFrontendUrl;
 
-    // Add this to read comma-separated URLs from environment variable
-    @Value("${FRONTEND_URLS:}")
-    private String additionalFrontendUrls;
+    @Value("${app.frontend.urls:${app.frontend.url}}")
+    private String allFrontendUrls;
 
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
-
-    // Method to get all allowed origins
-    private String[] getAllowedOrigins() {
-        if (additionalFrontendUrls == null || additionalFrontendUrls.isEmpty()) {
-            return new String[]{frontendUrl};
-        }
-
-        // Split comma-separated URLs
-        String[] urls = additionalFrontendUrls.split(",");
-        String[] result = new String[urls.length];
-
-        for (int i = 0; i < urls.length; i++) {
-            result[i] = urls[i].trim();
-        }
-
-        return result;
-    }
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                String[] allowedOrigins = getAllowedOrigins();
+                String[] allowedOrigins = Arrays.stream(allFrontendUrls.split(","))
+                        .map(String::trim)
+                        .toArray(String[]::new);
+
                 registry.addMapping("/**")
-                        .allowedOrigins(allowedOrigins) // Now supports multiple URLs
+                        .allowedOrigins(allowedOrigins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };
-    }
-
-    // Alternative: Use CorsConfigurationSource for more control
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(getAllowedOrigins()));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
     @Bean
@@ -88,6 +56,11 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
+                            // Store the original frontend URL if it's from allowed origin
+                            String origin = request.getHeader("Origin");
+                            if (origin != null && isValidFrontendUrl(origin)) {
+                                request.getSession().setAttribute("frontend_origin", origin);
+                            }
                             response.sendRedirect("/oauth2/authorization/google");
                         })
                 )
@@ -95,10 +68,37 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo ->
                                 userInfo.userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl(frontendUrl + "/admin/portfolio", true)
-                        .failureUrl(frontendUrl + "/login?error=true")
+                        .successHandler((request, response, authentication) -> {
+                            String frontendOrigin = (String) request.getSession().getAttribute("frontend_origin");
+                            String targetUrl = primaryFrontendUrl + "/admin/portfolio";
+
+                            if (frontendOrigin != null && isValidFrontendUrl(frontendOrigin)) {
+                                targetUrl = frontendOrigin + "/admin/portfolio";
+                                request.getSession().removeAttribute("frontend_origin");
+                            }
+
+                            response.sendRedirect(targetUrl);
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            String frontendOrigin = (String) request.getSession().getAttribute("frontend_origin");
+                            String targetUrl = primaryFrontendUrl + "/login?error=true";
+
+                            if (frontendOrigin != null && isValidFrontendUrl(frontendOrigin)) {
+                                targetUrl = frontendOrigin + "/login?error=true";
+                                request.getSession().removeAttribute("frontend_origin");
+                            }
+
+                            response.sendRedirect(targetUrl);
+                        })
                 );
 
         return http.build();
+    }
+
+    private boolean isValidFrontendUrl(String url) {
+        if (url == null) return false;
+        return Arrays.stream(allFrontendUrls.split(","))
+                .map(String::trim)
+                .anyMatch(url::startsWith);
     }
 }
