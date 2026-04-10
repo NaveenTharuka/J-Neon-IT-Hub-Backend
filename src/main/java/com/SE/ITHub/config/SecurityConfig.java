@@ -44,7 +44,7 @@ public class SecurityConfig {
             }
         };
     }
-
+/*
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -93,8 +93,30 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
+    }*/
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserService)
+                        )
+                        .successHandler((request, response, authentication) -> {
 
+                            OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+                            response.sendRedirect(frontendUrl + "/oauth-success");
+                        })
+                        .failureUrl(frontendUrl + "/login?error=true")
+                );
+
+        return http.build();
+    }
     private boolean isValidFrontendUrl(String url) {
         if (url == null) return false;
         return Arrays.stream(allFrontendUrls.split(","))
