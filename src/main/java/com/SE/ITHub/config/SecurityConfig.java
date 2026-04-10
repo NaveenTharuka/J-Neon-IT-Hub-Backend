@@ -110,9 +110,9 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
 
                             OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-                            response.sendRedirect(frontendUrl + "/oauth-success");
+                            response.sendRedirect(primaryFrontendUrl + "/oauth-success");
                         })
-                        .failureUrl(frontendUrl + "/login?error=true")
+                        .failureUrl(primaryFrontendUrl + "/login?error=true")
                 );
 
         return http.build();
