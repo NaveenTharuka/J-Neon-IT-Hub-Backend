@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/admin")
+@RequestMapping("/api/admin")
 public class AdminController {
 
     @Autowired
